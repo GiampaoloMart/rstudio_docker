@@ -1,7 +1,7 @@
 # Usa l'immagine ufficiale di RStudio e R
 FROM rocker/rstudio:latest
 
-# Aggiorna i pacchetti di sistema e installa le dipendenze necessarie, inclusi Git e patch
+# Aggiorna i pacchetti di sistema e installa le dipendenze necessarie, inclusi Git, patch, e libglpk-dev
 RUN apt-get update && \
     apt-get install -y \
     libcurl4-openssl-dev \
@@ -16,13 +16,9 @@ RUN apt-get update && \
     libjpeg-dev \
     libnetcdf-dev \
     git \
-    patch && \
+    patch \
+    libglpk-dev && \
     rm -rf /var/lib/apt/lists/*
-
-# Imposta variabili d'ambiente per HDF5
-ENV LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/hdf5/serial/:$LD_LIBRARY_PATH
-ENV HDF5_INCLUDE_DIR=/usr/include/hdf5/serial
-ENV HDF5_LIB_PATH=/usr/lib/x86_64-linux-gnu/hdf5/serial/
 
 # Installa BiocManager per gestire i pacchetti Bioconductor
 RUN R -e "install.packages('BiocManager')"
@@ -34,7 +30,7 @@ RUN R -e "install.packages('devtools')"
 RUN R -e "devtools::install_github('hhoeflin/hdf5r')" && \
     R -e "install.packages(c('tidyverse', 'viridis', 'gghalves', 'cowplot', 'patchwork', 'gridExtra', 'parallel', 'stringi', 'stringr'))"
 
-# Installa i pacchetti Bioconductor
+# Installa i pacchetti Bioconductor, incluso Seurat
 RUN R -e "BiocManager::install(c('Seurat', 'SeuratObject', 'scran', 'scater', 'scDblFinder', 'SoupX', 'BiocGenerics', 'harmony'))"
 
 # Crea un utente per l'accesso a RStudio
