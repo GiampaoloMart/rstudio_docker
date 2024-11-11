@@ -1,7 +1,7 @@
 # Usa l'immagine ufficiale di RStudio e R
 FROM rocker/rstudio:latest
 
-# Aggiorna i pacchetti di sistema e installa le dipendenze necessarie
+# Aggiorna i pacchetti di sistema e installa le dipendenze necessarie, inclusi Git e librerie per HDF5
 RUN apt-get update && \
     apt-get install -y \
     libcurl4-openssl-dev \
@@ -14,7 +14,8 @@ RUN apt-get update && \
     gfortran \
     libpng-dev \
     libjpeg-dev \
-    libnetcdf-dev && \
+    libnetcdf-dev \
+    git && \
     rm -rf /var/lib/apt/lists/*
 
 # Imposta variabili d'ambiente per HDF5
@@ -25,8 +26,12 @@ ENV HDF5_LIB_PATH=/usr/lib/x86_64-linux-gnu/hdf5/serial/
 # Installa BiocManager per gestire i pacchetti Bioconductor
 RUN R -e "install.packages('BiocManager')"
 
-# Installa i pacchetti CRAN necessari, inclusi 'hdf5r' e altri pacchetti richiesti
-RUN R -e "install.packages(c('tidyverse', 'viridis', 'gghalves', 'cowplot', 'patchwork', 'gridExtra', 'hdf5r', 'parallel', 'stringi', 'stringr'))"
+# Installa devtools per poter installare pacchetti da GitHub
+RUN R -e "install.packages('devtools')"
+
+# Installa il pacchetto hdf5r da GitHub
+RUN R -e "devtools::install_github('hhoeflin/hdf5r')" && \
+    R -e "install.packages(c('tidyverse', 'viridis', 'gghalves', 'cowplot', 'patchwork', 'gridExtra', 'parallel', 'stringi', 'stringr'))"
 
 # Installa i pacchetti Bioconductor
 RUN R -e "BiocManager::install(c('Seurat', 'SeuratObject', 'scran', 'scater', 'scDblFinder', 'SoupX', 'BiocGenerics', 'harmony'))"
@@ -43,3 +48,4 @@ EXPOSE 8787
 
 # Esegui RStudio come utente rstudio_user
 USER rstudio_user
+
