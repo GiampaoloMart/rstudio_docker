@@ -1,7 +1,7 @@
 # Usa l'immagine ufficiale di RStudio e R
 FROM rocker/rstudio:latest
 
-# Aggiorna i pacchetti di sistema e installa le dipendenze necessarie, inclusi Git e librerie per HDF5
+# Aggiorna i pacchetti di sistema e installa le dipendenze necessarie, inclusi Git e patch
 RUN apt-get update && \
     apt-get install -y \
     libcurl4-openssl-dev \
@@ -15,7 +15,8 @@ RUN apt-get update && \
     libpng-dev \
     libjpeg-dev \
     libnetcdf-dev \
-    git && \
+    git \
+    patch && \
     rm -rf /var/lib/apt/lists/*
 
 # Imposta variabili d'ambiente per HDF5
