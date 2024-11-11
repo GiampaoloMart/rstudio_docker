@@ -1,7 +1,7 @@
 # Usa l'immagine ufficiale di RStudio e R
 FROM rocker/rstudio:latest
 
-# Aggiorna i pacchetti di sistema e installa le dipendenze necessarie per hdf5r
+# Aggiorna i pacchetti di sistema e installa le dipendenze necessarie
 RUN apt-get update && \
     apt-get install -y \
     libcurl4-openssl-dev \
@@ -10,13 +10,22 @@ RUN apt-get update && \
     libhdf5-dev \
     zlib1g-dev \
     libhdf5-serial-dev \
-    hdf5-tools && \
+    hdf5-tools \
+    gfortran \
+    libpng-dev \
+    libjpeg-dev \
+    libnetcdf-dev && \
     rm -rf /var/lib/apt/lists/*
+
+# Imposta variabili d'ambiente per HDF5
+ENV LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/hdf5/serial/:$LD_LIBRARY_PATH
+ENV HDF5_INCLUDE_DIR=/usr/include/hdf5/serial
+ENV HDF5_LIB_PATH=/usr/lib/x86_64-linux-gnu/hdf5/serial/
 
 # Installa BiocManager per gestire i pacchetti Bioconductor
 RUN R -e "install.packages('BiocManager')"
 
-# Installa i pacchetti CRAN, incluso hdf5r
+# Installa i pacchetti CRAN necessari, inclusi 'hdf5r' e altri pacchetti richiesti
 RUN R -e "install.packages(c('tidyverse', 'viridis', 'gghalves', 'cowplot', 'patchwork', 'gridExtra', 'hdf5r', 'parallel', 'stringi', 'stringr'))"
 
 # Installa i pacchetti Bioconductor
